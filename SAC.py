@@ -56,8 +56,8 @@ class HeaderConstructor:
     oAuth2SAMLTokenUrl = ""
 
     # Both Client ID and secret are retrived from SAC -> Settings -> App. Integration -> Client.
-    clientId = ""  # <-- <INSERT CLIENT ID>
-    clientSecret = ""  # <-- <ENTER CLIENT SECRET>
+    clientId = "" 
+    clientSecret = ""
 
     def __init__(self):
         print("Header constructor instansiated")
@@ -269,9 +269,9 @@ class UserManagement:
 
     def getGroups(returnType: Literal["json", "custom"], selectEntities=[], teams=[]):
         ''' Returns all groups, now called Teams, from SAC, eigther as raw json or select entities.
-            Valid entities: "id", "displayName", "meta", "members", "roles"
-            Specify a team ID in teams, for query a subset of teams. 
-            '''
+              Valid entities: "id", "displayName", "meta", "members", "roles"
+              Specify a team ID in teams, for query a subset of teams. 
+              '''
 
         urlList = []
         groupList = []
@@ -285,36 +285,37 @@ class UserManagement:
             url = UrlConstructor.fetchUrl('groups')
             urlList.append(url)
 
-        # Get the request headers.
+            # Get the request headers.
         headers = HeaderConstructor.getHeaders()
 
         if returnType == "custom":
             entityList = []
             MatchList = ["id", "displayname", "meta", "members", "roles"]
-            # Collect the wanted entities and weed out the bad ones
+                # Collect the wanted entities and weed out the bad ones
             for entity in selectEntities:
                 # Validate the entity is in the match list, otherwise pass.
                 if not str(entity).lower() in MatchList:
-                    continue  # <-- Discard
+                        continue  # <-- Discard
                 entityList.append(entity)
 
-        # Loop through the list of URLs.
-        # For each url,
+            # Loop through the list of URLs.
+            # For each url,
         for url in urlList:
-            groupRequest = requests.get(url, headers=headers).json()
+            groupRequest = requests.get(url, headers=headers)
 
             if not str(groupRequest.status_code) == '200':
                 ErrorHandling.httpRequestError(
-                    groupRequest.status_code, "getToken", url, groupRequest.json())
+                groupRequest.status_code, "getToken", url, groupRequest.json())
 
             if returnType == "json":
                 groupList.append(groupRequest.json())
 
             if returnType == "custom":
                 customPayload = {}
+                groupRequestJson = groupRequest.json()
 
                 # Collect the desired data into groupList
-                for group in groupRequest["Resources"]:
+                for group in groupRequestJson["Resources"]:
                     for entity in entityList:
                         customPayload[entity] = group.get(entity)
 
@@ -431,11 +432,11 @@ class UserManagement:
         userBody["userName"] = userName
         userBody["name"]["firstName"] = firstName
         userBody["name"]["familyName"] = familyName
-        userBody["name"]["displayName"] = displayName
-        userBody["emails"]["value"] = emails
+        userBody["displayName"] = displayName
+        userBody["emails"][0]["value"] = emails
         userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"] = managerId
         userBody["roles"] = roles
-        userBody["Teams"] = teamsBody
+        userBody["groups"] = teamsBody
 
         postCreate = requests.post(
             url, headers=headers, data=json.dumps(userBody))
@@ -506,7 +507,7 @@ class UserManagement:
 
     def updateTeam(teamId, teamTxt, members=[], roles=[]):
 
-        url = UrlConstructor.fetchUrl('group',entity=teamId)
+        url = UrlConstructor.fetchUrl('group', entity=teamId)
         headers = HeaderConstructor.getHeaders('PUT')
 
         teamBody = BodyConstructor.getRequestBody('create team')
