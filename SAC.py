@@ -89,8 +89,6 @@ class HeaderConstructor:
 
         tokenRequest = requests.post(url, headers=headers, params=params)
 
-        if debug:
-            return tokenRequest.json()
         # HTTP ERROR Handling.
         if not str(tokenRequest.status_code) == '200':
             ErrorHandling.httpRequestError(
@@ -153,7 +151,7 @@ class BodyConstructor:
     def __str__(self) -> str:
         print("Helper class: Constructing request body information")
 
-    def getRequestBody(requestType: Literal['create user', 'create team'], includeOptional=False):
+    def getRequestBody(requestType: Literal['create user', 'create team', 'add user', 'add team'], includeOptional=False):
         '''Returns the request body for creating eigther a team or a user.
            The parameter "includeOptional" will append a host of optional fields to the scehma, if needed.
            Optional parameters include, but are not limited to: Preferred language, date formatting ect. 
@@ -243,6 +241,19 @@ class BodyConstructor:
                 "type": "User",
                 "value": " <USER ID> ",
                 "$ref": "/api/v1/scim/Users/<USER ID> "
+            }
+
+        if requestType.lower() == "add team":
+            requestBody = {
+                "value": "<TEAM ID>",
+                "display": "<TEAM TEXT>",
+                "$ref": "/api/v1/scim/Groups/<TEAM ID>"
+            }
+        if requestType.lower() == 'add email':
+            requestBody = {
+                "value": "<EMAIL>",
+                "type": "<TYPE>",
+                "primary": "<VALUE>"
             }
 
         return requestBody
@@ -402,6 +413,17 @@ class UserManagement:
 
         userBody = BodyConstructor.getRequestBody('create user')
 
+        # Format Teams
+        teamsBody = []
+
+        # Format teams into correct SCHEMA.
+        for team in teams:
+            templateBody = BodyConstructor.getRequestBody('add team')
+            templateBody["value"] = str(team).upper()
+            templateBody["$ref"] = "/api/v1/scim/Groups/" + str(team).upper()
+
+            teamsBody.append(templateBody)
+
         # Non required Body elements that can be manipulated:
         displayName = firstName + ' ' + familyName  # <-- Display name*
 
@@ -413,7 +435,7 @@ class UserManagement:
         userBody["emails"]["value"] = emails
         userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"] = managerId
         userBody["roles"] = roles
-        userBody["Teams"] = teams
+        userBody["Teams"] = teamsBody
 
         postCreate = requests.post(
             url, headers=headers, data=json.dumps(userBody))
@@ -428,7 +450,7 @@ class UserManagement:
         teamBody = BodyConstructor.getRequestBody('create team')
 
         memberBody = []
-        #Format members into correct SCHEMA. 
+        # Format members into correct SCHEMA.
         for user in members:
             templateBody = BodyConstructor.getRequestBody('add user')
             templateBody["value"] = str(user).upper()
