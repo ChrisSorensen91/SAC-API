@@ -459,8 +459,8 @@ class UserManagement:
 
             memberBody.append(templateBody)
 
-        teamBody["teamId"] = teamId
-        teamBody["dislpayName"] = teamTxt
+        teamBody["id"] = teamId
+        teamBody["displayName"] = teamTxt
         teamBody["members"] = members
         teamBody["roles"] = roles
 
