@@ -56,7 +56,7 @@ class HeaderConstructor:
     oAuth2SAMLTokenUrl = ""
 
     # Both Client ID and secret are retrived from SAC -> Settings -> App. Integration -> Client.
-    clientId = "" 
+    clientId = ""
     clientSecret = ""
 
     def __init__(self):
@@ -315,11 +315,10 @@ class UserManagement:
                 groupRequestJson = groupRequest.json()
 
                 # Collect the desired data into groupList
-                for group in groupRequestJson["Resources"]:
-                    for entity in entityList:
-                        customPayload[entity] = group.get(entity)
+                for entity in entityList:
+                    customPayload[entity] = groupRequestJson.get(entity)
 
-                    groupList.append(customPayload)
+                groupList.append(customPayload)
 
         return groupList
 
