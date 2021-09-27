@@ -34,7 +34,7 @@ class UrlConstructor:
 
         if endpoint == 'bearer':
             # The bearer URL is retrived from SAC -> Settings -> App. Integration -> Client.
-            return str(UrlConstructor.oAuth2SAMLTokenUrl + 'grant_type=client_credentials')
+            return str(HeaderConstructor.oAuth2SAMLTokenUrl + 'grant_type=client_credentials')
         elif endpoint == 'csrf':
             return str(UrlConstructor.sacBaseUrl + '/api/v1/scim/Users')
         elif endpoint == 'users':

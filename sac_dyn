@@ -10,8 +10,14 @@ import base64
 
 # BEFORE YOU START:
 # Please go into classes UrlConstructor and HeaderConstructor and maintain the values.
-
-
+class MetadataContainer:
+    def __init__(self, sacBaseUrl, oAuth2SAMLTokenUrl, clientId, clientSecret):
+        self.sacBaseUrl = sacBaseUrl
+        self.oAuth2SAMLTokenUrl = oAuth2SAMLTokenUrl
+        self.clientId = clientId
+        self.clientSecret = clientSecret
+    
+          
 class UrlConstructor:
 
     # Add the basic url for your SAC tenant:
@@ -19,11 +25,9 @@ class UrlConstructor:
     # https://<THIS PART>/sap/fpa/ui/app.html#/home
     sacBaseUrl = ""
 
-    def __init__(self):
-        print("URL constructor instansiated")
-
-    def __str__(self):
-        print("Helper class: Fetching URLs and tokens")
+    def __init__(self, metadataContainer):
+        self.metadataContainer = metadataContainer
+        
 
     # Function for contructing request URLs.
     # Returns the base url,
@@ -34,7 +38,7 @@ class UrlConstructor:
 
         if endpoint == 'bearer':
             # The bearer URL is retrived from SAC -> Settings -> App. Integration -> Client.
-            return str(UrlConstructor.oAuth2SAMLTokenUrl + 'grant_type=client_credentials')
+            return str(HeaderConstructor.oAuth2SAMLTokenUrl + 'grant_type=client_credentials')
         elif endpoint == 'csrf':
             return str(UrlConstructor.sacBaseUrl + '/api/v1/scim/Users')
         elif endpoint == 'users':
