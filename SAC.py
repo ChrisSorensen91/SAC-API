@@ -238,6 +238,12 @@ class BodyConstructor:
                     }
                 }
                 requestBody.update(optionalParameters)
+        if requestType.lower() == "add user":
+            requestBody = {
+                "type": "User",
+                "value": " <USER ID> ",
+                "$ref": "/api/v1/scim/Users/<USER ID> "
+            }
 
         return requestBody
 
@@ -420,6 +426,15 @@ class UserManagement:
         headers = HeaderConstructor.getHeaders('POST')
 
         teamBody = BodyConstructor.getRequestBody('create team')
+
+        memberBody = []
+        #Format members into correct SCHEMA. 
+        for user in members:
+            templateBody = BodyConstructor.getRequestBody('add user')
+            templateBody["value"] = str(user).upper()
+            templateBody["$ref"] = "/api/v1/scim/Users/" + str(user).upper()
+
+            memberBody.append(templateBody)
 
         teamBody["teamId"] = teamId
         teamBody["dislpayName"] = teamTxt
