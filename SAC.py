@@ -493,7 +493,7 @@ class UserManagement:
         userBody["userName"] = userName
         userBody["name"]["firstName"] = firstName
         userBody["name"]["familyName"] = familyName
-        userBody["name"]["displayName"] = displayName
+        userBody["displayName"] = displayName
         userBody["emails"]["value"] = emails
         userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"] = managerId
         userBody["roles"] = roles
