@@ -468,6 +468,68 @@ class UserManagement:
 
         return postCreate.json()
 
+    def updateUser(userName, familyName, emails,
+                   firstName="", roles=[], teams=[], managerId=""):
+
+        url = UrlConstructor.fetchUrl('user', entity=userName)
+        headers = HeaderConstructor.getHeaders("PUT")
+        userBody = BodyConstructor.getRequestBody('create user')
+
+        # Format Teams
+        teamsBody = []
+
+        # Format teams into correct SCHEMA.
+        for team in teams:
+            templateBody = BodyConstructor.getRequestBody('add team')
+            templateBody["value"] = str(team).upper()
+            templateBody["$ref"] = "/api/v1/scim/Groups/" + str(team).upper()
+
+            teamsBody.append(templateBody)
+
+        # Non required Body elements that can be manipulated:
+        displayName = firstName + ' ' + familyName  # <-- Display name*
+
+        # Assigning custom values to the
+        userBody["userName"] = userName
+        userBody["name"]["firstName"] = firstName
+        userBody["name"]["familyName"] = familyName
+        userBody["name"]["displayName"] = displayName
+        userBody["emails"]["value"] = emails
+        userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"] = managerId
+        userBody["roles"] = roles
+        userBody["Teams"] = teamsBody
+
+        postCreate = requests.put(
+            url, headers=headers, data=json.dumps(userBody))
+
+        return postCreate.json()
+
+    def updateTeam(teamId, teamTxt, members=[], roles=[]):
+
+        url = UrlConstructor.fetchUrl('group',entity=teamId)
+        headers = HeaderConstructor.getHeaders('PUT')
+
+        teamBody = BodyConstructor.getRequestBody('create team')
+
+        memberBody = []
+        # Format members into correct SCHEMA.
+        for user in members:
+            templateBody = BodyConstructor.getRequestBody('add user')
+            templateBody["value"] = str(user).upper()
+            templateBody["$ref"] = "/api/v1/scim/Users/" + str(user).upper()
+
+            memberBody.append(templateBody)
+
+        teamBody["teamId"] = teamId
+        teamBody["dislpayName"] = teamTxt
+        teamBody["members"] = members
+        teamBody["roles"] = roles
+
+        postCreate = requests.put(
+            url, headers=headers, data=json.dumps(teamBody))
+
+        return postCreate.json()
+
 
 class ErrorHandling:
 
