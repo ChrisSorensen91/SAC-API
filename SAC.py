@@ -34,7 +34,7 @@ class UrlConstructor:
 
         if endpoint == 'bearer':
             # The bearer URL is retrived from SAC -> Settings -> App. Integration -> Client.
-            return str(UrlConstructor.oAuth2SAMLTokenUrl + 'grant_type=client_credentials')
+            return str(HeaderConstructor.oAuth2SAMLTokenUrl + 'grant_type=client_credentials')
         elif endpoint == 'csrf':
             return str(UrlConstructor.sacBaseUrl + '/api/v1/scim/Users')
         elif endpoint == 'users':
@@ -165,7 +165,7 @@ class BodyConstructor:
 
         requestBody = {}
 
-        if requestType == "create user":
+        if requestType.lower() == "create user":
             requestBody = {
                 "schemas": ["ietf:params:scim:schemas:core:2.0:User",
                             "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"],
@@ -209,7 +209,7 @@ class BodyConstructor:
 
                 requestBody.update(optionalParameters)
 
-        if requestType == "create team":
+        if requestType.lower() == "create team":
             requestBody = {
                 "id": "<TEAM ID>",
                 "displayName": "<TEAM DESC>",
