@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html title="SAC APP">
+
+<body>
+    <h1>Create User:</h1>
+    <h2>Fill in to required information:</h2>
+
+    <h3 id="statusBar">
+        Status: {{status_code}}
+    </h3>
+
+    <form method="POST" action="{{ url_for('create_user') }}">
+        <p>
+            <label for="uname">Username:</label>
+            <!-- Username: <input type="text" name="xname" required> -->
+            <input type="text" id="uname" name="uname" value=""><br>
+        </p>
+        <p>
+            <label for="Name">Name:</label>
+            <input type="text" id="Name" name="name" value=""><br>
+        </p>
+        <p>
+            <label for="eMail">Email:</label>
+            <input type="email" id="eMail" name="eMail" value=""><br>
+        </p>
+        <p>
+            <label for="Roles">Roles: (Sep. comma)</label>
+            <input type="text" id="Roles" name="Roles"><br>
+        </p>
+        <p>
+            <label for="managerId">Manager ID:</label>
+            <input type="text" id="managerId" name="managerId" value=""><br>
+        </p>
+    </form>
+
+    <form action="/post_create_user/" method="post">
+        <button name="btnCreate" type="submit">Create user</button>
+    </form>
+    <form action="/post_update_user/" method="post">
+        <button name="btnCreate" type="submit">Update user</button>
+    </form>
+
+
+
+</body>
+
+</html>

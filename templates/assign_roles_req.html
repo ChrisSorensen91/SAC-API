@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Assign roles</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+        <h3>
+            Request status: {{Status_code}} : {{Status_text}}
+        </h3>
+        <form>
+            <p>
+                <label>
+                    Assigning: {{roles}} to {{user_id}}
+                </label>
+            </p>
+        </form>
+        <p>
+            <!-- <button onclick="nav_to_create">Create User</button> -->
+            <a href="{{ url_for('home') }}">Go home</a>
+        </p>
+</body>
+</html>

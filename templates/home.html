@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>SAC User administration</h1>
+    <h2>Pick an option</h2>
+    <p>
+        <!-- <button onclick="nav_to_create">Create User</button> -->
+        <a href="{{ url_for('nav_create_user') }}">Create or maintain user</a>
+    </p>
+    <p></p>
+    <p>
+        <!-- <button onclick="nav_to_assign">Assign Roles</button> -->
+        <a href="{{ url_for('nav_assign_roles') }}">Assign Roles & Groups</a>
+    </p>
+    <p>
+        <!-- <button onclick="nav_to_delete">Delete User</button> -->
+        <a href="{{ url_for('nav_delete_users') }}">Delete User</a>
+    </p>
+</body>
+
+</html>

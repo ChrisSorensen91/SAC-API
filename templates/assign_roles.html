@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Maintain roles and groups</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+
+<body>
+    <h1>Manage existing users</h1>
+    <br>
+    
+    <form method="GET" id="userList" name=userList action="/assign_roles">
+        <label for="userList">Choose user:</label>
+        <select>
+            {% for user in userList %}
+            <option value="{{user}}" selected>{{user}}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <br>
+    <br>
+    <form action="/post_assign_priv/" method="post">
+        <button name="btnCreate" type="submit">Assign selected values to user</button>
+    </form>
+    </p>
+    <h3>
+        Request status: {{status_code}}
+    </h3>
+    
+    <h2>Teams:</h2>
+    <form method="GET" id="groupList" name=groupList action="/assign_roles">
+        <h3>Note: 2857395 - Simple fix :) </h3>
+        <label>Available teams:</label>
+        <br>
+        <table id="groupTable" name=groupTable>
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Team ID</th>
+                    <th>Roles in team</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for group in groupList %}
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>{{group.Group}}</td>
+                    <td>{{group.Roles}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+
+        </table>
+        <P>
+        <form action="/post_create_user/" method="post">
+            <button name="btnCreate" type="submit">Create team</button>
+        </form>
+        <form action="/post_create_user/" method="post">
+            <button name="btnCreate" type="submit">Maintain or delete team</button>
+        </form>
+        </P>
+    </form>
+
+    <h2>Roles:</h2>
+    <form method="GET" id="groupList" name=groupList action="/assign_roles">
+        <label>Available roles:</label>
+        <br>
+        <table id="groupTable" name=groupTable>
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Team ID</th>
+                    <th>Roles in team</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for role in rolesList %}
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td>{{role.ROLES_ID}}</td>
+                    <td>{{role.TEXT}}</td>
+                    <td>{{role.CATEOGRY}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+    </form>
+
+    <p>
+    
+</body>
+
+</html>
