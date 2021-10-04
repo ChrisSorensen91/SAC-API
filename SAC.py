@@ -344,9 +344,9 @@ class UserManagement:
             entityList = []
             # Valid entities in the SAC user schema.
             MatchList = [
-                "userName", "id", "preferredLanguage",
+                "username", "id", "preferredLanguage",
                 "meta", "name",  "members", "roles",
-                "displayName", "active", "emails",
+                "displayname", "active", "emails",
                 "photos", "roles", "groups"]
 
         # Collect the wanted entities and weed out the bad ones
@@ -494,7 +494,7 @@ class UserManagement:
         userBody["name"]["firstName"] = firstName
         userBody["name"]["familyName"] = familyName
         userBody["displayName"] = displayName
-        userBody["emails"]["value"] = emails
+        userBody["emails"][0]["value"] = emails
         userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"] = managerId
         userBody["roles"] = roles
         userBody["Teams"] = teamsBody
@@ -529,6 +529,30 @@ class UserManagement:
             url, headers=headers, data=json.dumps(teamBody))
 
         return postCreate.json()
+    
+    def deleteUser(userId):
+        ''' Deleting a user. NOTE: Contains NO confirmation or safeguard.
+            PLEASE wrap this function, to avoid unintended deletions  '''
+
+        url = UrlConstructor.fetchUrl('user', userId)
+        headers = HeaderConstructor.getHeaders("POST")
+
+        postDelete = requests.delete(url, headers=headers)
+
+        return postDelete.json()
+
+    def deleteTeam(teamId):
+        ''' Deleting a user. NOTE: Contains NO confirmation or safeguard.
+            PLEASE wrap this function, to avoid unintended deletions  '''
+
+        url = UrlConstructor.fetchUrl('group', teamId)
+        headers = HeaderConstructor.getHeaders("POST")
+
+        postDelete = requests.delete(url, headers=headers)
+
+        return postDelete.json()
+
+    
 
 
 class ErrorHandling:
