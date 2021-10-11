@@ -8,8 +8,14 @@ import requests
 import json
 import base64
 
+from requests.models import RequestEncodingMixin
+
 # BEFORE YOU START:
 # Please go into classes UrlConstructor and HeaderConstructor and maintain the values.
+
+#TODO: Metadata container:
+class MetaDataContainer:
+    pass
 
 
 class UrlConstructor:
@@ -91,7 +97,7 @@ class HeaderConstructor:
 
         # HTTP ERROR Handling.
         if not str(tokenRequest.status_code) == '200':
-            ErrorHandling.httpRequestError(
+            MessageHandler.httpRequestError(
                 tokenRequest.status_code, "getToken", url, tokenRequest.json())
 
         returnToken = tokenRequest.json()['access_token']
@@ -108,7 +114,7 @@ class HeaderConstructor:
         csrfRequest = requests.get(url, headers=headers)
 
         if not str(csrfRequest.status_code) == '200':
-            ErrorHandling.httpRequestError(
+            MessageHandler.httpRequestError(
                 csrfRequest.status_code, "getToken", url, csrfRequest.json())
 
         return_payload = {}
@@ -151,7 +157,7 @@ class BodyConstructor:
     def __str__(self) -> str:
         print("Helper class: Constructing request body information")
 
-    def getRequestBody(requestType: Literal['create user', 'create team', 'add user', 'add team'], includeOptional=False):
+    def getRequestBody(requestType: Literal['http return', 'create user', 'create team', 'add user', 'add team'], includeOptional=False):
         '''Returns the request body for creating eigther a team or a user.
            The parameter "includeOptional" will append a host of optional fields to the scehma, if needed.
            Optional parameters include, but are not limited to: Preferred language, date formatting ect. 
@@ -165,7 +171,16 @@ class BodyConstructor:
 
         requestBody = {}
 
-        if requestType.lower() == "create user":
+        if requestType.lower() == "http return":
+            requestBody = {
+                "status": "<HTTP STATUS CODE>",
+                "raw": "<JSON>",
+                "message": "<HTTP RESPONSE>"
+            }
+
+            return requestBody
+
+        elif requestType.lower() == "create user":
             requestBody = {
                 "schemas": ["ietf:params:scim:schemas:core:2.0:User",
                             "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"],
@@ -291,11 +306,11 @@ class UserManagement:
         if returnType == "custom":
             entityList = []
             MatchList = ["id", "displayname", "meta", "members", "roles"]
-                # Collect the wanted entities and weed out the bad ones
+            # Collect the wanted entities and weed out the bad ones
             for entity in selectEntities:
                 # Validate the entity is in the match list, otherwise pass.
                 if not str(entity).lower() in MatchList:
-                        continue  # <-- Discard
+                    continue  # <-- Discard
                 entityList.append(entity)
 
             # Loop through the list of URLs.
@@ -304,8 +319,8 @@ class UserManagement:
             groupRequest = requests.get(url, headers=headers)
 
             if not str(groupRequest.status_code) == '200':
-                ErrorHandling.httpRequestError(
-                groupRequest.status_code, "getToken", url, groupRequest.json())
+                MessageHandler.httpRequestError(
+                    groupRequest.status_code, "getToken", url, groupRequest.json())
 
             if returnType == "json":
                 groupList.append(groupRequest.json())
@@ -388,7 +403,7 @@ class UserManagement:
         # Fetch the body of requests, in order to make changes.
         userBodyRequest = requests.get(url, headers=headers)
         if not str(userBodyRequest.status_code) == '200':
-            ErrorHandling.httpRequestError(
+            MessageHandler.httpRequestError(
                 userBodyRequest.status_code, "getToken", url, userBodyRequest.json())
 
         userBody = userBodyRequest.json()
@@ -399,10 +414,11 @@ class UserManagement:
         putAssign = requests.put(url, headers=headers,
                                  data=json.dumps(userBody))
         if not str(putAssign.status_code) == '200':
-            ErrorHandling.httpRequestError(
+            MessageHandler.httpRequestError(
                 putAssign.status_code, "getToken", url, putAssign.json())
 
         return putAssign.json()
+        
 
     def createUser(userName, familyName, emails,
                    firstName="", roles=[], teams=[], managerId=""):
@@ -440,7 +456,7 @@ class UserManagement:
         postCreate = requests.post(
             url, headers=headers, data=json.dumps(userBody))
 
-        return postCreate.json()
+        return MessageHandler.httpCallReturn(postCreate)
 
     def createTeam(teamId, teamTxt, members=[], roles=[]):
 
@@ -466,7 +482,7 @@ class UserManagement:
         postCreate = requests.post(
             url, headers=headers, data=json.dumps(teamBody))
 
-        return postCreate.json()
+        return MessageHandler.httpCallReturn(postCreate)
 
     def updateUser(userName, familyName, emails,
                    firstName="", roles=[], teams=[], managerId=""):
@@ -502,7 +518,7 @@ class UserManagement:
         postCreate = requests.put(
             url, headers=headers, data=json.dumps(userBody))
 
-        return postCreate.json()
+        return MessageHandler.httpCallReturn(postCreate)
 
     def updateTeam(teamId, teamTxt, members=[], roles=[]):
 
@@ -528,8 +544,9 @@ class UserManagement:
         postCreate = requests.put(
             url, headers=headers, data=json.dumps(teamBody))
 
-        return postCreate.json()
-    
+        return MessageHandler.httpCallReturn(postCreate)
+        
+
     def deleteUser(userId):
         ''' Deleting a user. NOTE: Contains NO confirmation or safeguard.
             PLEASE wrap this function, to avoid unintended deletions  '''
@@ -539,7 +556,7 @@ class UserManagement:
 
         postDelete = requests.delete(url, headers=headers)
 
-        return postDelete.json()
+        return MessageHandler.httpCallReturn(postDelete)
 
     def deleteTeam(teamId):
         ''' Deleting a user. NOTE: Contains NO confirmation or safeguard.
@@ -550,18 +567,39 @@ class UserManagement:
 
         postDelete = requests.delete(url, headers=headers)
 
-        return postDelete.json()
-
-    
+        return MessageHandler.httpCallReturn(postDelete)
 
 
-class ErrorHandling:
+class MessageHandler:
 
     def __init__(self):
-        return "Error handler constructor instansiated"
+        return "Message handler constructor instansiated"
 
     def __str__(self):
-        return "Helper class: Error handling"
+        return "Helper class: Return and error messages"
+
+    def httpCallReturn(request):
+        ''' Function for formatting the http responses, to get better information from HTTP calls '''
+
+        reponseBody = BodyConstructor.getRequestBody('http return')
+
+        try:
+            reponseBody["status"] = request.status_code
+        except:
+            reponseBody["status"] = "Status not found"
+        
+        try:
+            reponseBody["json"] = request.json()
+        except:
+            reponseBody["json"] = "no response body was returned"
+        
+        try:
+            reponseBody["message"] = request.reason
+        except:
+            reponseBody["message"] = "No message returned"
+
+        
+        return
 
     def httpRequestError(statusCode, callingFunction, url, response):
 
