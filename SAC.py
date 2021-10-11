@@ -12,9 +12,18 @@ from requests.models import RequestEncodingMixin
 
 # BEFORE YOU START:
 # Please go into classes UrlConstructor and HeaderConstructor and maintain the values.
-
-#TODO: Metadata container:
 class MetaDataContainer:
+    
+    #TODO Test instanciation. 
+    def __init__(self, sacBaseUrl, oAuth2SAMLTokenUrl, clientId, clientSecret):
+        self.sacBaseUrl = sacBaseUrl
+        self.oAuth2SAMLTokenUrl = oAuth2SAMLTokenUrl
+        self.clientId = clientId
+        self.clientSecret = clientSecret
+        return self
+
+    #TODO: Append classes to incorporate passing the metadata to functions.
+
     pass
 
 
