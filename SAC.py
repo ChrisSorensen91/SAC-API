@@ -24,7 +24,7 @@ class MetaDataContainer:
 
     #TODO: Append classes to incorporate passing the metadata to functions.
 
-    pass
+    
 
 
 class UrlConstructor:
