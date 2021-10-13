@@ -264,7 +264,7 @@ class BodyConstructor:
             requestBody = {
                 "type": "User",
                 "value": " <USER ID> ",
-                "$ref": "/api/v1/scim/Users/<USER ID> "
+                "$ref": "/api/v1/scim/Users/<USER ID>"
             }
 
         if requestType.lower() == "add team":
