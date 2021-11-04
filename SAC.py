@@ -511,10 +511,8 @@ class UserManagement:
 
             teamsBody.append(templateBody)
 
-        # Non required Body elements that can be manipulated:
-        displayName = firstName + ' ' + familyName  # <-- Display name*
 
-        # Assigning custom values to the
+        displayName = firstName + ' ' + familyName 
         userBody["userName"] = userName
         userBody["name"]["firstName"] = firstName
         userBody["name"]["familyName"] = familyName
