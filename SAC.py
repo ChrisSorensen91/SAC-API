@@ -604,9 +604,7 @@ class MessageHandler:
             reponseBody["message"] = request.reason
         except:
             reponseBody["message"] = "No message returned"
-
-        
-        return
+        return reponseBody
 
     def httpRequestError(statusCode, callingFunction, url, response):
 
