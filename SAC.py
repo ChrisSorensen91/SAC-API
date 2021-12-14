@@ -493,16 +493,34 @@ class UserManagement:
 
         return MessageHandler.httpCallReturn(postCreate)
 
-    def updateUser(userName, familyName, emails,
+    def updateUser(userName, familyName="", emails="",
                    firstName="", roles=[], teams=[], managerId=""):
 
         url = UrlConstructor.fetchUrl('user', entity=userName)
         headers = HeaderConstructor.getHeaders("PUT")
         userBody = BodyConstructor.getRequestBody('create user')
 
+        #Format input string. 
+        if not userName == "":
+            userName = userName.upper()
+        else:
+            raise ValueError("Enter a valid ID")
+
         # Format Teams
         teamsBody = []
 
+        url = UrlConstructor.fetchUrl('user', userName)
+        headers = HeaderConstructor.getHeaders("PUT")
+
+        # Construct body:
+
+        # Fetch the body of requests, in order to make changes.
+        userBodyRequest = requests.get(url, headers=headers)
+        if not str(userBodyRequest.status_code) == '200':
+            MessageHandler.httpRequestError(userBodyRequest.status_code, 
+                "getToken", url, userBodyRequest.json())
+            userBody = userBodyRequest.json()
+        
         # Format teams into correct SCHEMA.
         for team in teams:
             templateBody = BodyConstructor.getRequestBody('add team')
@@ -511,6 +529,37 @@ class UserManagement:
 
             teamsBody.append(templateBody)
 
+        #Preserve values from user body, if no input was given. 
+        if firstName == "":
+            try:
+                firstName = userBody["name"]["firstName"]
+            except:
+                firstName = ""
+        
+        if familyName == "":
+            try:
+                familyName = userBody["name"]["familyName"] 
+            except:
+                familyName = ""
+        
+        if emails == "":
+            try:
+                emails = userBody["emails"][0]["value"]
+            except:
+                raise ValueError("Please provide a valid Email")
+        
+        if managerId == "":
+            try:
+                managerId = userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"]
+            except:
+                managerId = ""
+        
+        if roles == "":
+            try:
+                roles = userBody["roles"]
+            except:
+                roles = ""
+       
 
         displayName = firstName + ' ' + familyName 
         userBody["userName"] = userName
@@ -522,10 +571,10 @@ class UserManagement:
         userBody["roles"] = roles
         userBody["Teams"] = teamsBody
 
-        postCreate = requests.put(
+        putUpdateUser = requests.put(
             url, headers=headers, data=json.dumps(userBody))
 
-        return MessageHandler.httpCallReturn(postCreate)
+        return MessageHandler.httpCallReturn(putUpdateUser)
 
     def updateTeam(teamId, teamTxt, members=[], roles=[]):
 
