@@ -485,13 +485,61 @@ class UserManagement:
 
         teamBody["id"] = teamId
         teamBody["displayName"] = teamTxt
-        teamBody["members"] = members
+        teamBody["members"] = memberBody
         teamBody["roles"] = roles
 
         postCreate = requests.post(
             url, headers=headers, data=json.dumps(teamBody))
 
         return MessageHandler.httpCallReturn(postCreate)
+
+    def UpdateTeam(teamId, teamTxt="", members=[], roles=[]):
+
+        if teamId == "":
+            str(teamId).upper()
+        else:
+            raise ValueError("Please provide a valid Team ID")
+
+        url = UrlConstructor.fetchUrl('group',teamId)
+        headers = HeaderConstructor.getHeaders('POST')
+        teamBody = BodyConstructor.getRequestBody('create team')
+
+        teamBodyResponse = requests.get(url, headers=headers)
+
+        if not str(teamBodyResponse.status_code) == '200':
+            MessageHandler.httpRequestError(teamBodyResponse.status_code, "getToken", url, teamBodyResponse.json())
+        else:
+            teamBody = teamBodyResponse.json()
+
+        if teamTxt == "":
+            try:
+                teamTxt = teamBody["displayName"]
+            except:
+                teamTxt = ""
+            
+        if members == "" or members == []:
+            try:
+                members = teamBody["members"]
+            except:
+                members = ""
+        else:
+            memberBody = []
+            for user in members:
+                templateBody = BodyConstructor.getRequestBody('add user')
+                templateBody["value"] = str(user).upper()
+                templateBody["$ref"] = "/api/v1/scim/Users/" + str(user).upper()
+
+                memberBody.append(templateBody)
+
+
+        teamBody["id"] = teamId
+        teamBody["displayName"] = teamTxt
+        teamBody["members"] = memberBody
+        teamBody["roles"] = roles
+            
+        putUpdate = requests.put(url, headers=headers, data=json.dumps(teamBody))
+
+        return MessageHandler.httpCallReturn(putUpdate)
 
     def updateUser(userName, familyName="", emails="",
                    firstName="", roles=[], teams=[], managerId=""):
@@ -502,7 +550,7 @@ class UserManagement:
 
         #Format input string. 
         if not userName == "":
-            userName = userName.upper()
+            userName = str(userName).upper()
         else:
             raise ValueError("Enter a valid ID")
 
@@ -517,8 +565,8 @@ class UserManagement:
         # Fetch the body of requests, in order to make changes.
         userBodyRequest = requests.get(url, headers=headers)
         if not str(userBodyRequest.status_code) == '200':
-            MessageHandler.httpRequestError(userBodyRequest.status_code, 
-                "getToken", url, userBodyRequest.json())
+            MessageHandler.httpRequestError(userBodyRequest.status_code, "getToken", url, userBodyRequest.json())
+        else:
             userBody = userBodyRequest.json()
         
         # Format teams into correct SCHEMA.
