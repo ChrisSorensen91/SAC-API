@@ -604,8 +604,7 @@ class MessageHandler:
         except:
             reponseBody["message"] = "No message returned"
 
-        
-        return
+        return reponseBody
 
     def httpRequestError(statusCode, callingFunction, url, response):
 
