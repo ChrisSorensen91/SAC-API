@@ -20,12 +20,9 @@ class MetaDataContainer:
         self.oAuth2SAMLTokenUrl = oAuth2SAMLTokenUrl
         self.clientId = clientId
         self.clientSecret = clientSecret
-        return self
+        
 
-    #TODO: Append classes to incorporate passing the metadata to functions.
-
-    
-
+    #TODO: Append classes to incorporate passing the metadata to functions.  
 
 class UrlConstructor:
 
