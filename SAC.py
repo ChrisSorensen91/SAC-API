@@ -482,7 +482,7 @@ class UserManagement:
 
         teamBody["id"] = teamId
         teamBody["displayName"] = teamTxt
-        teamBody["members"] = members
+        teamBody["members"] = memberBody
         teamBody["roles"] = roles
 
         postCreate = requests.post(
@@ -490,16 +490,82 @@ class UserManagement:
 
         return MessageHandler.httpCallReturn(postCreate)
 
-    def updateUser(userName, familyName, emails,
+    def UpdateTeam(teamId, teamTxt="", members=[], roles=[]):
+
+        if teamId == "":
+            str(teamId).upper()
+        else:
+            raise ValueError("Please provide a valid Team ID")
+
+        url = UrlConstructor.fetchUrl('group',teamId)
+        headers = HeaderConstructor.getHeaders('POST')
+        teamBody = BodyConstructor.getRequestBody('create team')
+
+        teamBodyResponse = requests.get(url, headers=headers)
+
+        if not str(teamBodyResponse.status_code) == '200':
+            MessageHandler.httpRequestError(teamBodyResponse.status_code, "getToken", url, teamBodyResponse.json())
+        else:
+            teamBody = teamBodyResponse.json()
+
+        if teamTxt == "":
+            try:
+                teamTxt = teamBody["displayName"]
+            except:
+                teamTxt = ""
+            
+        if members == "" or members == []:
+            try:
+                members = teamBody["members"]
+            except:
+                members = ""
+        else:
+            memberBody = []
+            for user in members:
+                templateBody = BodyConstructor.getRequestBody('add user')
+                templateBody["value"] = str(user).upper()
+                templateBody["$ref"] = "/api/v1/scim/Users/" + str(user).upper()
+
+                memberBody.append(templateBody)
+
+
+        teamBody["id"] = teamId
+        teamBody["displayName"] = teamTxt
+        teamBody["members"] = memberBody
+        teamBody["roles"] = roles
+            
+        putUpdate = requests.put(url, headers=headers, data=json.dumps(teamBody))
+
+        return MessageHandler.httpCallReturn(putUpdate)
+
+    def updateUser(userName, familyName="", emails="",
                    firstName="", roles=[], teams=[], managerId=""):
 
         url = UrlConstructor.fetchUrl('user', entity=userName)
         headers = HeaderConstructor.getHeaders("PUT")
         userBody = BodyConstructor.getRequestBody('create user')
 
+        #Format input string. 
+        if not userName == "":
+            userName = str(userName).upper()
+        else:
+            raise ValueError("Enter a valid ID")
+
         # Format Teams
         teamsBody = []
 
+        url = UrlConstructor.fetchUrl('user', userName)
+        headers = HeaderConstructor.getHeaders("PUT")
+
+        # Construct body:
+
+        # Fetch the body of requests, in order to make changes.
+        userBodyRequest = requests.get(url, headers=headers)
+        if not str(userBodyRequest.status_code) == '200':
+            MessageHandler.httpRequestError(userBodyRequest.status_code, "getToken", url, userBodyRequest.json())
+        else:
+            userBody = userBodyRequest.json()
+        
         # Format teams into correct SCHEMA.
         for team in teams:
             templateBody = BodyConstructor.getRequestBody('add team')
@@ -508,10 +574,39 @@ class UserManagement:
 
             teamsBody.append(templateBody)
 
-        # Non required Body elements that can be manipulated:
-        displayName = firstName + ' ' + familyName  # <-- Display name*
+        #Preserve values from user body, if no input was given. 
+        if firstName == "":
+            try:
+                firstName = userBody["name"]["firstName"]
+            except:
+                firstName = ""
+        
+        if familyName == "":
+            try:
+                familyName = userBody["name"]["familyName"] 
+            except:
+                familyName = ""
+        
+        if emails == "":
+            try:
+                emails = userBody["emails"][0]["value"]
+            except:
+                raise ValueError("Please provide a valid Email")
+        
+        if managerId == "":
+            try:
+                managerId = userBody["urn:scim:schemas:extension:enterprise:1.0"]["manager"]["managerId"]
+            except:
+                managerId = ""
+        
+        if roles == "":
+            try:
+                roles = userBody["roles"]
+            except:
+                roles = ""
+       
 
-        # Assigning custom values to the
+        displayName = firstName + ' ' + familyName 
         userBody["userName"] = userName
         userBody["name"]["firstName"] = firstName
         userBody["name"]["familyName"] = familyName
@@ -521,37 +616,11 @@ class UserManagement:
         userBody["roles"] = roles
         userBody["Teams"] = teamsBody
 
-        postCreate = requests.put(
+        putUpdateUser = requests.put(
             url, headers=headers, data=json.dumps(userBody))
 
-        return MessageHandler.httpCallReturn(postCreate)
-
-    def updateTeam(teamId, teamTxt, members=[], roles=[]):
-
-        url = UrlConstructor.fetchUrl('group', entity=teamId)
-        headers = HeaderConstructor.getHeaders('PUT')
-
-        teamBody = BodyConstructor.getRequestBody('create team')
-
-        memberBody = []
-        # Format members into correct SCHEMA.
-        for user in members:
-            templateBody = BodyConstructor.getRequestBody('add user')
-            templateBody["value"] = str(user).upper()
-            templateBody["$ref"] = "/api/v1/scim/Users/" + str(user).upper()
-
-            memberBody.append(templateBody)
-
-        teamBody["teamId"] = teamId
-        teamBody["dislpayName"] = teamTxt
-        teamBody["members"] = members
-        teamBody["roles"] = roles
-
-        postCreate = requests.put(
-            url, headers=headers, data=json.dumps(teamBody))
-
-        return MessageHandler.httpCallReturn(postCreate)
-        
+        return MessageHandler.httpCallReturn(putUpdateUser)
+   
 
     def deleteUser(userId):
         ''' Deleting a user. NOTE: Contains NO confirmation or safeguard.
@@ -603,7 +672,6 @@ class MessageHandler:
             reponseBody["message"] = request.reason
         except:
             reponseBody["message"] = "No message returned"
-
         return reponseBody
 
     def httpRequestError(statusCode, callingFunction, url, response):

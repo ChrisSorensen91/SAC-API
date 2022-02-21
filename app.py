@@ -56,8 +56,8 @@ def home():
     return render_template('home.html')
 #
 
-def nav_create_user():
-    return render_template('create_user.html')
+# def nav_create_user():
+#     return render_template('create_user.html')
 
 def nav_delete_users():
     return render_template('delete_user.html')
