@@ -604,6 +604,8 @@ class UserManagement:
                 roles = userBody["roles"]
             except:
                 roles = ""
+
+        
        
 
         displayName = firstName + ' ' + familyName 
