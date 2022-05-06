@@ -1,4 +1,3 @@
-import logging
 from flask import Flask, render_template, request
 from flask.signals import template_rendered
 import json

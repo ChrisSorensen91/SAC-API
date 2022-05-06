@@ -1,8 +1,8 @@
-# Helper classes for constructing URLS and getting tokens.
-# Developed by InnoLogic A/S, Denmark.
-# All code can be found at https://github.com/ChrisSorensen91/SAC_PUBLIC.git
-# Have fun :)
+# All purpose application for all your SAC User Management. 
+# Please see README file, on how to use and deploy the API. 
+#
 
+#Module imports:
 from typing import Literal
 import requests
 import json
@@ -10,20 +10,8 @@ import base64
 
 from requests.models import RequestEncodingMixin
 
-# BEFORE YOU START:
-# Please go into classes UrlConstructor and HeaderConstructor and maintain the values.
-class MetaDataContainer:
-    
-    #TODO Test instanciation. 
-    def __init__(self, sacBaseUrl, oAuth2SAMLTokenUrl, clientId, clientSecret):
-        self.sacBaseUrl = sacBaseUrl
-        self.oAuth2SAMLTokenUrl = oAuth2SAMLTokenUrl
-        self.clientId = clientId
-        self.clientSecret = clientSecret
-        
-
-    #TODO: Append classes to incorporate passing the metadata to functions.  
-
+#The config file contains all the program secrets. 
+import config
 class UrlConstructor:
 
     # Add the basic url for your SAC tenant:
