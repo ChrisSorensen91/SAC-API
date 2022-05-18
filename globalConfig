@@ -1,7 +1,0 @@
-
-sacSecrets = {
-    "sacBaseUrl" : "",
-    "oAuth2SAMLTokenUrl" : "",
-    "clientSecret" : "",
-    "clientId" : ""
-}
